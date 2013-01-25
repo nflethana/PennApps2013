@@ -1,0 +1,13 @@
+h1{
+	text-align: center;
+	font: 30 px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+	font-weight: bold;
+	margin: 0px;
+}
+p, ol{
+	margin-top: 2px;
+	margin-left: 5px;
+	font: 1.3em 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+	font-weight: bold;
+	text-align: left;
+}

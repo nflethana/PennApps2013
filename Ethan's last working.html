@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>SaferWay</title>
+  <!--<link rel="shortcut icon" href="favicon.ico" />-->
+  <link rel="stylesheet" href="font.css">
+  <link rel="stylesheet" href="stylesheet.css">
+    
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map_canvas { height: 100%;
+          position: absolute;}
+      .right{
+      background-color: #80bfff;
+      width: 20%;
+      height: 96.8%;
+      display: inline;
+      margin-top: 30px;
+      float: right;
+      filter: alpha(opacity=60);
+      opacity: 0.86;
+    }
+    .right .top{
+      width: 95%;
+      height: 37%;
+      background-color: white;
+      margin: auto;
+      margin-top: 1.5%;
+      border-radius: 10px;
+      filter: alpha(opacity=60);
+      opacity: 1.0;
+      padding-top: 5px;
+    }
+    #end{
+      padding-left:10px; 
+    }
+    .right .mid{
+      width: 95%;
+      height: 12%;
+      background-color: white;
+      margin: auto;
+      margin-top: 2%;
+      border-radius: 10px;
+      filter: alpha(opacity=60);
+      opacity: 1.0;
+      padding-top:10px;
+    }
+    .right .bot{
+      width: 95%;
+      height: 46.5%;
+      background-color: white;
+      margin: auto;
+      margin-top: 2%;
+      border-radius: 10px;
+      filter: alpha(opacity=60);
+      opacity: 1.0;
+      padding-top: 10px;
+    }
+    .container{
+      width: 100%;
+    }
+    #directionsPanel{
+      display: inline;
+      float:right;
+      width:15%;
+      height: 96.8%;
+      margin-top: 30px;
+      background-color: #80bfff;
+      filter: alpha(opacity=60);
+      opacity: 0.86;
+    }
+    #form{
+      margin-left: 5px;
+      margin-top: 10px;
+    }
+    .text {
+      width: 100%;
+      margin-top: 7px;
+      text-align: left;
+      margin-left: 5px;
+    }
+     h1{
+    text-align: center;
+    font: 30 px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+    font-weight: bold;
+    margin: 0px;
+    }
+    p{
+      margin-top: 2px;
+      margin-left: 5px;
+      font: 1.3em 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    </style>
+     <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEyGvb_6XqOvFH3xKEChUfCnnXpLkS8L4&sensor=true">
+    </script>
+    <script type="text/javascript">
+      var map;
+      var directionDisplay;
+      var directionsService = new google.maps.DirectionsService();
+      var geocoder;
+      var rends = new google.maps.DirectionsRenderer();
+
+  var showIcon = []; //For displaying Icons based on Legend
+  showIcon.push(true);
+  showIcon.push(true);
+  showIcon.push(true);
+  showIcon.push(true);
+  showIcon.push(true);
+  showIcon.push(true);
+  showIcon.push(true);
+  showIcon.push(true);
+
+
+
+      
+ function Crime(x, y, time, type){
+  this.x = x;
+  this.y = y;
+  this.time = time;
+  this.type = type;
+};
+var crimes = [];
+function processArray(array){
+  console.log(array);
+}
+
+
+function initialize() {
+   geocoder = new google.maps.Geocoder();
+
+  var myLatlng = new google.maps.LatLng(40,-74.85);
+  var mapOptions = {
+    zoom: 11,
+    center: myLatlng,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+  map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+  
+for (var ucr = 100; ucr <800; ucr+=100){
+  for(var sector = 1;sector < 4; sector++) {
+    $.getJSON("http://gis.phila.gov/ArcGIS/rest/services/PhilaGov/Police_Incidents_Last30/MapServer/0/query?text=&geometry=&geometryType=esriGeometryPoint&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&objectIds=&where=SECTOR%3D%27" + sector + "%27+AND+UCR_GENERAL%3D%27" + ucr + "%27&time=&returnCountOnly=false&returnIdsOnly=false&returnGeometry=true&maxAllowableOffset=&outSR=&outFields=*&f=pjson",function(data){
+      $.each(data.features,function(i,feature){
+        var location = new google.maps.LatLng(feature.geometry.y,feature.geometry.x);
+         var aCrime = new Crime(feature.geometry.x, feature.geometry.y, feature.attributes.HOUR, feature.attributes.UCR_GENERAL);
+         crimes.push(aCrime);
+      placeMarker(location, feature.attributes.UCR_GENERAL);
+      if (crimes.length == 3234) processArray(crimes);
+      });
+
+    }); 
+   }
+    }
+}
+
+
+function calcRoute() {
+  var startText = document.getElementById('starting').value;
+  var endText = document.getElementById('ending').value;
+  
+  geocoder.geocode( { 'address': startText, 'bounds':new google.maps.LatLngBounds(new google.maps.LatLng(39.5,-75.5),new google.maps.LatLng(40.5,-74.5))}, function(results, status) {
+      
+  
+    if (status == google.maps.GeocoderStatus.OK){
+      var start=results[0].geometry.location;
+      geocoder.geocode( { 'address': endText, 'bounds':new google.maps.LatLngBounds(new google.maps.LatLng(39.5,-75.5),new google.maps.LatLng(40.5,-74.5))}, function(results, status) {
+        
+
+    if (status == google.maps.GeocoderStatus.OK){
+      var end = results[0].geometry.location;
+      var request = {
+    origin:start,
+    destination:end,
+    travelMode: google.maps.DirectionsTravelMode.WALKING,
+    provideRouteAlternatives:true
+  };
+  directionsService.route(request, function(response, status) {
+    if (status == google.maps.DirectionsStatus.OK) {
+      var total;
+      total = testAllRoutes(response);
+      console.log(total);
+    }
+  });
+    } 
+  });
+    } 
+  });
+
+
+  
+  
+  
+}
+
+function placeMarker(location, UCR) {
+  if (UCR == 700) {
+    var image = 'https://dl.dropbox.com/u/36875668/theftG.png';
+    var title = "Recovered Stolen Vehicle";
+    var show = showIcon[7];
+  } 
+  else if (UCR == 600) {
+    var image = 'https://dl.dropbox.com/u/36875668/theftO.png';
+    var title = "Theft from Vehicle";
+    var show = showIcon[6];
+  }
+  else if (UCR == 300) {
+    var image = 'https://dl.dropbox.com/u/36875668/theft.png';
+    var title = "Robbery without Firearms";
+    var show = showIcon[5];
+  }
+  else if (UCR == 500) {
+    var image = 'https://dl.dropbox.com/u/36875668/crimesceneO.png';
+    var title = "Residential Burglary";
+    var show = showIcon[4];
+  }
+  else if (UCR == 200) {
+    var image = 'https://dl.dropbox.com/u/36875668/crimescene.png';
+    var title = "Rape";
+    var show = showIcon[3];
+  }
+  else if (UCR == 400) {
+    var image = 'https://dl.dropbox.com/u/36875668/shootingG.png';
+    var title = "Aggravated Assaul with Firearms";
+    var show = showIcon[2];
+  }
+  else {
+    var image = 'https://dl.dropbox.com/u/36875668/shooting.png';
+    var title = "Homicide";
+    var show = showIcon[1];
+  }
+  var marker = new google.maps.Marker({
+      position: location,
+      map: map,
+      icon: image,
+      title: title,
+      visible: show
+  });
+
+}
+
+function findIndexOfLowest(array) {
+  var indexLowest = 0;
+  for (var i = 0; i < array.length; i++) {
+    if(array[i] < array[indexLowest]) {
+      indexLowest = i;
+    }
+  }
+  return indexLowest;
+}
+
+function testAllRoutes(result) {
+  var bads = [];
+  var bigIndex = 0;
+  for (var i = 0; i < result.routes.length; i++) {
+    bads.push(testSteps(result.routes[i]));
+  }
+  var best = findIndexOfLowest(bads);
+  
+  rends.setMap(map);
+  rends.setDirections(result);
+  rends.setPanel(document.getElementById("directionsPanel"));
+  rends.setRouteIndex(i);
+  var temp = [];
+  var past = [];
+ for (var i =0; i <bads.length;i++){
+    temp[i]=(bads[i]);
+  }
+  temp.sort();
+  console.log(temp);
+  document.getElementById('#1').innerHTML = "Safest Routes";
+  for (var i =0; i <temp.length;i++){
+    var x = 0;
+    for (var j = 0; j<past.length;j++){
+      if (temp[i] == past[j]) x++;
+    }
+    var OldHTML = document.getElementById('#1').innerHTML;
+    console.log(OldHTML);
+    document.getElementById('#1').innerHTML = (OldHTML + "<li>Route " + (bads.indexOf(temp[i])+1+x) + "</li>");
+    console.log(document.getElementById('#1').innerHTML);
+    (past[i])=(temp[i]);
+  }
+
+
+  return bads;
+
+}
+
+function testSteps(route) {
+  var howBad = 0;
+  for (var i = 0; i < route.overview_path.length; i++ ) {
+    howBad += inBoundingBoxes(route.overview_path[i]);
+  }
+  return howBad;
+}
+
+
+function inBoundingBoxes(location) {
+  var increment = 0;
+  for (var i = 0; i < crimes.length; i++) {
+    if ((location.lat() < crimes[i].y + 0.001 && location.lat() > crimes[i].y - 0.001) && 
+       (location.lng() < crimes[i].x + 0.001  && location.lng() > crimes[i].x - 0.001)) {
+      //increment something that weighs routes
+      increment ++;
+      //console.log(inBox);
+    } else {
+      //console.log(inBox);
+    }
+  }
+  return increment;
+}
+    </script>
+
+  </head>
+
+  <body onload="initialize()">
+     <div id="map_canvas" style="float:left;width:100%; height:100%;"></div>
+  <div id="directionsPanel"></div>  
+    <div class="right">
+      <div class="top">
+        <p class="text" id="1"><img src="https://dl.dropbox.com/u/36875668/theftG.png" width="22" height="22">Recovered Stolen Vehicles</p>
+        <p class = "text" id="2"><img src="https://dl.dropbox.com/u/36875668/theftO.png" width="22" height="22">Theft from Vehicle</p>
+        <p class = "text" id="3"><img src="https://dl.dropbox.com/u/36875668/crimesceneO.png" width="22" height="22">Burglary Residential</p>
+        <p class = "text" id="4"><img src="https://dl.dropbox.com/u/36875668/shootingG.png" width="22" height="22">Aggravated Assault w/ Firearms</p>
+        <p class = "text" id="5"><img src="https://dl.dropbox.com/u/36875668/theft.png" width="22" height="22">Robbery w/o Firearms</p>
+        <p class = "text" id="6"><img src="https://dl.dropbox.com/u/36875668/crimescene.png" width="22" height="22">Rape</p>
+        <p class = "text" id="7"><img src="https://dl.dropbox.com/u/36875668/shooting.png" width="22" height="22">Homicide</p>
+      </div>
+      <div class="mid">
+        <form name="ends">
+        <p class="text" id="form">Start: <input type=text size=20 id='starting'></p>
+        <p class="text" id="end">End:   <input type=text size=20 id='ending'>
+        <input type="button" value="Encode" onclick="calcRoute()">
+        </form>
+      </div>
+      <div class="bot">
+        <ol class ="text" id="#1">Safest Routes
+        </ol>
+        <img src="https://dl.dropbox.com/u/36875668/logo.JPG" width="361" height="71">
+        
+      </div>
+    </div>
+  </body>
+</html>

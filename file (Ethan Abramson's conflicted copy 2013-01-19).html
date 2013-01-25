@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map_canvas { height: 100% }
+    </style>
+     <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEyGvb_6XqOvFH3xKEChUfCnnXpLkS8L4&sensor=true">
+    </script>
+    <script type="text/javascript">
+      var map;
+     
+function initialize() {
+  var myLatlng = new google.maps.LatLng(-25.363882,131.044922);
+  var mapOptions = {
+    zoom: 4,
+    center: myLatlng,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  }
+  $.getJSON("http://gis.phila.gov/ArcGIS/rest/services/PhilaGov/Police_Incidents_Last30/MapServer/0/query?text=&geometry=&geometryType=esriGeometryPoint&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&objectIds=&where=SECTOR%2D%273%27+AND+UCR_GENERAL%3D%27500%27&time=&returnCountOnly=false&returnIdsOnly=false&returnGeometry=true&maxAllowableOffset=&outSR=&outFields=*&f=pjson",function(data){
+    (data.features[0].geometry.x);
+    var location = new google.maps.LatLng(data.features[0].geometry.y,data.features[0].geometry.x);
+    console.log(data.features[0].geometry.x);
+    console.log(data.features[0].geometry.y);
+    placeMarker(location);
+
+  }); 
+  map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+  google.maps.event.addListener(map, 'click', function(event) {
+    map.panTo(event.latLng);
+  });
+
+  for (var i =2;i<100;i++){
+  var crimeLocation = google.maps.LatLng(readX(i),readY(i));
+  placeMarker(crimeLocation);
+}
+}
+
+function placeMarker(location) {
+  var marker = new google.maps.Marker({
+      position: location,
+      map: map
+  });
+
+
+
+
+  map.setCenter(location);
+}
+    </script>
+
+  </head>
+  <body onload="initialize()">
+    <div id="map_canvas" style="width:100%; height:100%"></div>
+  </body>
+</html>

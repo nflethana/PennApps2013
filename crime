@@ -1,0 +1,14 @@
+function Crime(x, y, time, type){
+	this.x = x;
+	this.y = y;
+	this.time = time;
+	this.type = type;
+}
+
+example....
+
+var crime = new Crime(5, 7, something, something);
+
+to access....
+
+crime.x = e;alighila;ejfa;eligh;

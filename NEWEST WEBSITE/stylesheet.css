@@ -1,0 +1,51 @@
+
+
+.right{
+	background-color: #80bfff;
+	width: 20%;
+	height: 96.8%;
+	display: inline;
+	margin-top: 30px;
+	float: right;
+	filter: alpha(opacity=60);
+	opacity: 0.86;
+	
+}
+.right .top{
+	width: 95%;
+	height: 29%;
+	background-color: white;
+	margin: auto;
+	margin-top: 1.5%;
+	border-radius: 10px;
+	filter: alpha(opacity=60);
+	opacity: 1.0;
+}
+.right .mid{
+	width: 95%;
+	height: 29%;
+	background-color: white;
+	margin: auto;
+	margin-top: 2%;
+	border-radius: 10px;
+	filter: alpha(opacity=60);
+	opacity: 1.0;
+}
+.right .bot{
+	width: 95%;
+	height: 39%;
+	background-color: white;
+	margin: auto;
+	margin-top: 2%;
+	border-radius: 10px;
+	filter: alpha(opacity=60);
+	opacity: 1.0;
+}
+
+.text {
+	width: 100%;
+	margin-top: 7px;
+	text-align: left;
+	margin-left: 5px;
+	font: 30 px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+}
